@@ -1,0 +1,17 @@
+plugins {
+	id 'application'
+	id 'eclipse'
+}
+
+
+dependencies {
+	implementation group: 'xerces', name: 'xercesImpl', version: '2.12.0'
+}
+
+repositories {
+	jcenter()
+}
+
+application {
+	mainClass = 'com.intland.utils.reqif.Cleanup'
+}
