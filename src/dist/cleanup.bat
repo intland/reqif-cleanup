@@ -1,2 +1,2 @@
-call bin\reqif-cleanup.bat cleanup
+call bin\reqif-cleanup.bat cleanup validate %*
 pause

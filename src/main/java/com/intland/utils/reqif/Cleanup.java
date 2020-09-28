@@ -111,11 +111,18 @@ public class Cleanup {
 
 	public static void main(String[] args) throws IOException {
 
-		List<String> asList = Arrays.asList(args);
-		debug = asList.contains("debug");
-		boolean cleanup = asList.contains("cleanup");
-		boolean identifier = asList.contains("identifier");
-		boolean validate = asList.contains("validate");
+		List<String> attributes = Arrays.asList(args);
+		debug = attributes.contains("debug");
+		boolean cleanup = attributes.contains("cleanup");
+		boolean identifier = attributes.contains("identifier");
+		boolean validate = attributes.contains("validate");
+
+		String qualifier =  attributes.stream()
+			.filter(it -> it.startsWith("qualifier:"))
+			.map(it -> it.substring(10))
+			.findFirst()
+			.orElse(null);
+
 
 		boolean move = identifier || cleanup;
 
@@ -130,7 +137,7 @@ public class Cleanup {
 
 			try (FileSystem zip = loadZip(zipPath)) {
 				loadReqIfFiles(zip).map(ReqIfFile::new).forEach(reqif -> {
-					boolean identifierAdded = identifier && reqif.addIdentifier();
+					boolean identifierAdded = identifier && reqif.addIdentifier(qualifier);
 					boolean configChanged = cleanup && reqif.removeCbConfiguration();
 					if (configChanged || identifierAdded) {
 						try {
@@ -225,7 +232,7 @@ public class Cleanup {
 			return !removed.isEmpty();
 		}
 
-		public boolean addIdentifier() {
+		public boolean addIdentifier(String qualifier) {
 			Element header = (Element)document.getElementsByTagNameNS(REQIF_NS, "REQ-IF-HEADER").item(0);
 			NodeList repositoryIdList = document.getElementsByTagNameNS(REQIF_NS, "REPOSITORY-ID");
 			Element repositoryId;
@@ -244,7 +251,7 @@ public class Cleanup {
 
 
 			if(repositoryId.getTextContent() == null || repositoryId.getTextContent().isEmpty()) {
-				repositoryId.setTextContent(allSpecIds);
+				repositoryId.setTextContent(Optional.ofNullable(qualifier).map(it -> it + "-").orElse("") + allSpecIds);
 				return true;
 			}
 

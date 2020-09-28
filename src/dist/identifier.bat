@@ -1,2 +1,2 @@
-call bin\reqif-cleanup.bat identifier
+call bin\reqif-cleanup.bat identifier validate %*
 pause
